@@ -1,0 +1,14 @@
+Data.ID,Related.ProjectID,Data.Name,Description,Date,Path,Data.Repository,Method,Organism,Tissue.Cell,Genotype,Format
+15,4,test_data5,"",2021-08-06,"","","","","","",""
+14,6,test_data4,"",2021-08-06,"","","","","","",""
+13,1,test_data3,"",2021-08-06,"","","","","","",""
+12,4,test_data2,"",2021-08-06,"","",ChIP-seq,"","","",""
+11,1,test_data,please edit this dataset,2021-08-05,"","",ChIP-seq,Human,Lung,"",Other
+10,5,Hum_2_3,human2,2021-05-26,/library/Wind/SL/Hum/A3.fq,GEO:GSM600,ChIP-seq,Human,Kidney,WT(wildtype),fastq.gz
+9,5,Hum_2_2,human2,2021-05-26,/library/Wind/SL/Hum/A2.fq,GEO:GSM601,ChIP-seq,Human,Kidney,WT(wildtype),fastq.gz
+7,4,Hum_1_3,human1,2019-07-26,/library/Hill/SL/Hum/003.fq,GEO:GSM700,ChIP-seq,Human,Liver,WT(wildtype),fastq.gz
+6,4,Hum_1_2,human1,2019-07-26,/library/Hill/SL/Hum/002.fq,GEO:GSM701,ChIP-seq,Human,Liver,WT(wildtype),fastq.gz
+4,2,mCG_BS_WT2,mCG_BS_WT,2018-05-14,/library/Bird/SL/mCG/B2.fq,GEO:GSM1500,BS-seq,Mouse,Neuron,TG(transgenic),fastq
+3,2,mCG_BS_WT1,mCG_BS_WT,2018-05-13,/library/Bird/SL/mCF/B1.fq,GEO:GSM1501,BS-seq,Mouse,Neuron,TG(transgenic),fastq
+2,1,MeCP2_ChIP_2,MeCP2_ChIP,2018-04-13,/library/Bird/JCW/MeCP2/0002.fq.gz,GEO:GSM1300,ChIP-seq,Mouse,Brain,WT(wildtype),fastq.gz
+1,1,MeCP2_ChIP_1,MeCP2_ChIP,2018-04-13,/library/Bird/JCW/MeCP2/0001.fq.gz,GEO:GSM1301,ChIP-seq,Mouse,Brain,WT(wildtype),fastq.gz

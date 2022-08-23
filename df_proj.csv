@@ -1,0 +1,12 @@
+Project.ID,Project.Name,Parent,Description,Start.Date,Path,Sample.Sheet,Researcher,Bioinformatician,Group,Report,Status,Data.Repository,Code.Repository,Permissions
+11,Test_Project_5,,"",2021-08-06,"","","","","","",Ongoing,"","",Group
+10,Test_Project_4,,"",2021-08-06,"","","","","","",Ongoing,"","",Group
+9,Test_Project_3,,"",2021-08-06,"","","","","","",Ongoing,"","",Group
+8,Test_Project_2,,"",2021-08-06,"","","",Mia,"","",Ongoing,"","",Group
+7,Test_Project_1,,"",2021-08-06,"","",Mia,Mia,BioC,"",Ongoing,"","",Group
+6,Wind_JCW_David_2021,,wind_2020_JCW +2021,25/07/2021,/homes/david/data/wind/JCW/July25,www.bifx-core.bio.ed.ac.uk/Wind/sample,JCW,David,Wind,www.bifx-core.bio.ed.ac.uk/Wind/report,Ongoing,GEO: GSE666,www.github.com/david/Hum1_2,Group
+5,Wind_JCW_Emma_2021,6,"",22/07/2021,/homes/emma/data/wind/JCW/July22,www.bifx-core.bio.ed.ac.uk/Wind/sample,JCW,Emma,Wind,www.bifx-core.bio.ed.ac.uk/Wind/report,Completed,GEO: GSE666,www.github.com/emma/Hum2,Open
+4,Wind_JCW_Lucy_2020,6,"",21/07/2020,/homes/lucy/data/wind/JCW/July21,www.bifx-core.bio.ed.ac.uk/Wind/sample,JCW,Lucy,Wind,www.bifx-core.bio.ed.ac.uk/Wind/report,Completed,GEO: GSE666,www.github.com/lucy/Hum1,Open
+3,Bird_SL_Shaun_2020,,bird_2020_SL + 2018 +2019,13/07/2020,/homes/swebb/data/Bird/SL/mCG_BS-seq_July13,www.bifx-core.bio.ed.ac.uk/swebb/Bird/ ,SL,Shaun,Bird,www.bifx-core.bio.ed.ac.uk/swebb/Bird/,Ongoing,GEO: GSE1000,www.github.com/swebb/MeCP2_Me3,Individual
+2,Bird_SL_Shaun_2019,3,"",19/05/2019,/homes/swebb/data/Bird/SL/mCG_BS-seq_May19,www.bifx-core.bio.ed.ac.uk/swebb/Bird/,SL,Shaun,Bird,www.bifx-core.bio.ed.ac.uk/swebb/Bird/,Published,GEO: GSE1000,www.github.com/swebb/Me3,Group
+1,Bird_JCW_Shaun_2018,3,"",13/04/2018,/homes/swebb/data/Bird/JCW/MeCP2_April18,www.bifx-core.bio.ed.ac.uk/swebb/Bird/,JCW,Shaun,Bird,www.bifx-core.bio.ed.ac.uk/swebb/Bird/,Published,GEO: GSE1000,www.github.com/swebb/MeCP2,Group
