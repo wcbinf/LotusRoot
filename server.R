@@ -18,12 +18,18 @@ print_rows_cols = function(id) {
 
 ## Read files---------------------------------------------------------------
 
+## Connect to DB
+
+db_file <- "db/database.sqlite"
+con <- dbConnect(drv=RSQLite::SQLite(), dbname=db_file)
+
 # future work: datas<-readRDS("df_data.rds") 
 datas <- read.csv('df_data.csv')
 proj <- read.csv('df_proj.csv')
-user <- read.csv('register.csv')
+#user <- read.csv('register.csv')
 # admin tables
 am_method <- read.table('admin_method.csv',sep = ',',header = T)  
+am_group <- read.table('admin_group.csv',sep = ',',header = T)   #am_group <- read.csv('admin_group.csv', header = T)
 
 
 
@@ -47,7 +53,7 @@ server <- function(input, output,session) {
   # define the ui of the login dialog box
   login_dialog <- modalDialog(
     title = 'Welcome to My LIMS!',
-    footer = actionButton('useless','  '),
+    #footer = actionButton('useless','  '),
     size = 'l',
     box(width = 5,
         h4('Login'),
@@ -60,7 +66,7 @@ server <- function(input, output,session) {
         useShinyFeedback(), 
         textInput('registerName','Username', placeholder = "Please enter your full name"),
         passwordInput('registerpw','Password'),
-        textInput("email", "Email :",placeholder = "Pleasr enter your email"),
+        textInput("email", "Email :",placeholder = "Please enter your email"),
         uiOutput("register_group"),
         actionButton('register_ok','New User Register'),
         verbatimTextOutput("successfully_registered")
@@ -75,14 +81,14 @@ server <- function(input, output,session) {
   
   
   # validate the login username and password 
-  userVal <- reactiveVal(user)
+  userVal <- reactiveVal(tbl(con,"user"))
   observeEvent(input$tab_login.login, {
     
     username <- input$tab_login.username
     password <- input$tab_login.password
     #row.names(user) <- user$Name
     
-    if(username %in% userVal()[,'Name'] 
+    if(username %in% (userVal() %>% pull("Name"))
        & password == userVal() %>% filter(Name==username) %>% pull(Password)) 
     {
       # real time login
@@ -93,7 +99,7 @@ server <- function(input, output,session) {
         paste0('Welcome,', ' ',username,'!')
       )
       shinyjs::show('tab_login.welcome_div') # show welcome message
-    } else if (username %in% userVal()[,'Name'] 
+    } else if (username %in% (userVal() %>%  pull("Name")) 
                & !(password == userVal() %>% filter(Name==username) %>% pull(Password)))
     {
       # password incorrect, show the warning message
@@ -117,7 +123,7 @@ server <- function(input, output,session) {
   # new user register 
   # check unique user name
   observeEvent(input$registerName, {
-    if(input$registerName %in% user[,'Name']) {
+    if(input$registerName %in% (tbl(con,"user") %>% pull(Name))) {
       showFeedbackDanger(
         inputId = "registerName",
         text = "The user name is already taken."
@@ -135,13 +141,13 @@ server <- function(input, output,session) {
       cat("Successfully registered!")
       shinyjs::delay(2000, hide('successfully_registered'))
     })
-    u <- rbind(data.frame(Name = input$registerName,
+    u <- data.frame(Name = input$registerName,
                           Password = input$registerpw,
                           Email = input$email,
                           Group.Lab.Center = input$group,
                           #Permissions = input$permissions
                           Permissions = 'General_Staff'
-    ),userVal())
+                    )
     userVal(u)
     
     #Clear text input after submit
@@ -150,13 +156,15 @@ server <- function(input, output,session) {
     updateTextInput(session, "email", value = "")   
     updateTextInput(session, "group", value = "")  
     
-    fwrite(userVal(),'register.csv',row.names = FALSE)
+    dbAppendTable(con,"user",u)
+    #fwrite(userVal(),'register.csv',row.names = FALSE)
   })
   
   
   ### User permissions ------
   observeEvent(input$tab_login.login,{
-    pm <- userVal() %>% filter(Name==input$tab_login.username) %>% pull(Permissions)
+    un=input$tab_login.username
+    pm <- userVal() %>% filter(Name==un) %>% pull(Permissions)
     output$tab_login.permissions_text <- renderText(paste0('Your permissions: ',pm))
     print(pm)    
     #'General_Staff','Data_Administrator','Project_Supervisor ','System_Maintenance'
@@ -945,10 +953,10 @@ server <- function(input, output,session) {
   # admin_user ------
   
   # ADD user info
-  userVal <- reactiveVal(user)
+  userVal <- reactiveVal(tbl(con,"user"))
   observeEvent(input$userName, {
     # check unique user name
-    if(input$userName %in% userVal()[,'Name']) {
+    if(input$userName %in% (userVal() %>% pull("Name"))) {
       showFeedbackDanger(
         inputId = "userName",
         text = "The user name is already taken."
@@ -965,16 +973,13 @@ server <- function(input, output,session) {
     column(4, selectInput("userGroup", "Group", choices = am_group[,1]))
   )
   observeEvent(input$add_user,{
-    u <- rbind(
-      data.frame(
+    u <-data.frame(
         Name = input$userName,  
         Email = input$userEmail,  
         Group.Lab.Center = input$userGroup, 
         Permissions = input$userPermissions,
         Password = input$userPW
-      ),userVal()) 
-    
-    userVal(u)
+      ) 
     
     output$user_successfully_added <- renderPrint({
       cat("Successfully added!")
@@ -987,7 +992,10 @@ server <- function(input, output,session) {
     updateTextInput(session, "userGroup", value = "")     
     updateTextInput(session, "userPermissions", value = "")     
     # save
-    fwrite(userVal(),'register.csv',row.names = FALSE)
+    dbAppendTable(con,"user",u)
+    userVal(1)
+    userVal(tbl(con,"user"))
+    #fwrite(userVal(),'register.csv',row.names = FALSE)
   })
   
   ## DELETE user 
@@ -1009,12 +1017,16 @@ server <- function(input, output,session) {
   observe({
     if(values_u$modal_closed){
       observeEvent(input$delete_u, {
-        r = userVal()
         if (!is.null(input$admin_user_info_rows_selected)) {
-          r <- r[-as.numeric(input$admin_user_info_rows_selected),]
+          r<-userVal() %>% data.frame() %>% slice(input$admin_user_info_rows_selected)
+          q=paste0("DELETE FROM user WHERE Name IN (",paste(sQuote(r$Name),collapse = ","),")")
+          dbExecute(con,q)
+          #r <- r[-as.numeric(input$admin_user_info_rows_selected),]
         }
-        userVal(r)
-        fwrite(userVal(),'register.csv',row.names = FALSE)
+        userVal(1) ##Hack to refresh table...
+        userVal(tbl(con,"user"))
+        #userVal(r)
+        #fwrite(userVal(),'register.csv',row.names = FALSE)
         values_u$modal_closed <- F
       })
     }
@@ -1022,7 +1034,7 @@ server <- function(input, output,session) {
   
   # output user_info
   output$admin_user_info <- DT::renderDT(
-    userVal()[,c(1,2,3,4)], ##hide password col
+    userVal() %>% select(-Password) %>% data.frame(), ##hide password col
     rownames = FALSE,
     server = FALSE,     ## client-side processing 
     selection = list(target = 'row'),   ## Multiple selection: rows
@@ -1129,7 +1141,6 @@ server <- function(input, output,session) {
   })
   
   # 2 group -----
-  am_group <- read.table('admin_group.csv',sep = ',',header = T)   #am_group <- read.csv('admin_group.csv', header = T)
   am_group_val <- reactiveVal(am_group)
   output$admin_group <- renderDT(
     am_group_val(),

@@ -16,6 +16,9 @@ library(tidyr)
 library(shinyFeedback)
 library(data.table) ## fwrite: fast
 #library(rhandsontable)
+## Database functions
+library(dbplyr)
+library(DBI)
 
 # ui
 # dashboard_header -----
