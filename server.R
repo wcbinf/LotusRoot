@@ -3,6 +3,7 @@
 # Shiny web application server 
 #
 
+options(useFancyQuotes = F)
 
 ## Functions --------------------------------------------------------------------
 # print_rows_cols
@@ -1046,6 +1047,100 @@ server <- function(input, output,session) {
                    #buttons = c('csv', 'excel', 'pdf'),
                    searchHighlight = TRUE,search = list(regex = TRUE))
   )
+  
+  
+  ## Modal edit
+  
+  labelMandatory <- function(label) {
+    tagList(
+      label,
+      span("*", class = "mandatory_star")
+    )
+  }
+  
+  appCSS <- ".mandatory_star { color: red; }"
+  
+  fieldsMandatory <- c("userName", "userPW","userGroup","userEmail","userPermissions")
+  
+  observe({
+    mandatoryFilled <-
+      vapply(fieldsMandatory,
+             function(x) {
+               !is.null(input[[x]]) && input[[x]] != ""
+             },
+             logical(1))
+    mandatoryFilled <- all(mandatoryFilled)
+    
+    shinyjs::toggleState(id = "submit", 
+                         condition = mandatoryFilled)
+  })
+  
+  entry_form <- function(button_id){
+    dft<-userVal() %>% data.frame()
+    showModal(
+      modalDialog(
+        div(id=("entry_form"),
+            tags$head(tags$style(".modal-dialog{ width:400px}")), #Modify the width of the dialog
+            tags$head(tags$style(HTML(".shiny-split-layout > div {overflow: visible}"))), #Necessary to show the input options
+            fluidPage(
+              fluidRow(
+                renderText(paste("User name:",dft[input$admin_user_info_rows_selected, "Name"])),
+                #textInput("userNameM", labelMandatory("Name"), placeholder = ""),
+                passwordInput('userPWM','Password'),
+                textInput("userEmailM", labelMandatory("Email"), placeholder = ""),
+                selectInput("userGroupM", labelMandatory("Group"), choices = am_group[,1]),
+                selectInput(inputId = "userPermissionsM", labelMandatory("User Permissions:"), 
+                          choices = c('General_Staff','Data_Administrator','Project_Supervisor','System_Maintenance')),
+                helpText(labelMandatory(""), paste("Mandatory field.")),
+                actionButton(button_id, "Submit")
+              ),
+              easyClose = TRUE
+            )
+          )
+        )
+      )
+  }
+  
+  observeEvent(input$edit_user, priority = 20,{
+    showModal(
+      if(length(input$admin_user_info_rows_selected) > 1 ){
+        modalDialog(
+          title = "Warning",
+          paste("Please select only one row." ),easyClose = TRUE)
+      } else if(length(input$admin_user_info_rows_selected) < 1){
+        modalDialog(
+          title = "Warning",
+          paste("Please select a row." ),easyClose = TRUE)
+      })  
+    
+    if(length(input$admin_user_info_rows_selected) == 1 ){
+      
+      entry_form("submit_edit")
+      
+      dft<-userVal() %>% data.frame()
+      updateTextInput(session, "userPWM", value = dft[input$admin_user_info_rows_selected, "Password"])
+      updateTextInput(session, "userEmailM", value = dft[input$admin_user_info_rows_selected, "Email"])
+      updateTextInput(session, "userGroupM", value = dft[input$admin_user_info_rows_selected, "Group.Lab.Center"])
+      updateTextInput(session, "userPermissionsM", value = dft[input$admin_user_info_rows_selected, "Permissions"])
+    }
+    
+  }) 
+  
+  observeEvent(input$submit_edit, priority = 20, {
+    
+    dft<-userVal() %>% data.frame()
+    row_selection <- dft[input$admin_user_info_row_last_clicked, "Name"] 
+    dbExecute(con, sprintf('UPDATE "user" SET "Password" = ?, "Email" = ?,
+                          "Group.Lab.Center" = ?, "Permissions" = ? WHERE "Name" = ("%s")', row_selection), 
+              param = list(input$userPWM,
+                           input$userEmailM,
+                           input$userGroupM,
+                           input$userPermissionsM))
+    removeModal()
+    userVal(1) ##Hack to refresh table...
+    userVal(tbl(con,"user"))
+    
+  })
   
   # edit user information (no edit button)
   proxy_admin_user_info <- dataTableProxy("admin_user_info")

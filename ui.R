@@ -333,7 +333,7 @@ body <- dashboardBody(
                       helpText("To edit user information, please double-click where you want to edit."),
                       helpText("The changes are automatically saved!"),
                       DTOutput(outputId='admin_user_info'),
-                      #actionButton('edit_user','Edit',style = "color: white; background-color: teal"),
+                      actionButton('edit_user','Edit',style = "color: white; background-color: teal"),
                       actionButton('delete_user','Delete',style = "color: white; background-color: red"))
               ))
     ),
