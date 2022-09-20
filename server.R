@@ -1084,7 +1084,7 @@ server <- function(input, output,session) {
             tags$head(tags$style(HTML(".shiny-split-layout > div {overflow: visible}"))), #Necessary to show the input options
             fluidPage(
               fluidRow(
-                renderText(paste("User name:",dft[input$admin_user_info_rows_selected, "Name"])),
+                HTML(paste("<b>User name:",dft[input$admin_user_info_rows_selected, "Name"],"</b><br>")),
                 #textInput("userNameM", labelMandatory("Name"), placeholder = ""),
                 passwordInput('userPWM','Password'),
                 textInput("userEmailM", labelMandatory("Email"), placeholder = ""),
